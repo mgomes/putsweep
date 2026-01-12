@@ -46,8 +46,9 @@ func New(cfg *config.Config, manager *downloader.Manager) Model {
 	urlInput.Width = 50
 
 	dirInput := textinput.New()
+	dirInput.Prompt = ""
 	dirInput.SetValue(cfg.DownloadDir)
-	dirInput.Width = 50
+	dirInput.Width = 58
 
 	scheduleChoice := 0
 	switch cfg.ScheduleMode {
@@ -156,6 +157,33 @@ func (m Model) updateMain(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (m Model) updateSettings(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
+	// When editing directory, pass most keys to the input
+	if m.settingsFocus == 1 {
+		switch msg.String() {
+		case "ctrl+c":
+			return m, tea.Quit
+		case "esc":
+			m.view = ViewMain
+			m.urlInput.Focus()
+			return m, nil
+		case "tab":
+			m.settingsFocus = 0
+			m.dirInput.Blur()
+			return m, nil
+		case "shift+tab":
+			m.settingsFocus = 0
+			m.dirInput.Blur()
+			return m, nil
+		case "enter":
+			m.config.DownloadDir = m.dirInput.Value()
+			m.config.Save()
+			return m, nil
+		default:
+			m.dirInput, cmd = m.dirInput.Update(msg)
+			return m, cmd
+		}
+	}
+
 	switch msg.String() {
 	case "ctrl+c":
 		return m, tea.Quit
@@ -166,33 +194,26 @@ func (m Model) updateSettings(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "tab", "down", "j":
-		m.settingsFocus = (m.settingsFocus + 1) % 2
+		m.settingsFocus = 1
+		m.dirInput.Focus()
 
 	case "shift+tab", "up", "k":
-		m.settingsFocus = (m.settingsFocus - 1 + 2) % 2
+		m.settingsFocus = 1
+		m.dirInput.Focus()
 
 	case "left", "h":
-		if m.settingsFocus == 0 {
-			m.scheduleChoice = (m.scheduleChoice - 1 + 3) % 3
-			m.applyScheduleChoice()
-		}
+		m.scheduleChoice = (m.scheduleChoice - 1 + 3) % 3
+		m.applyScheduleChoice()
 
 	case "right", "l":
-		if m.settingsFocus == 0 {
-			m.scheduleChoice = (m.scheduleChoice + 1) % 3
-			m.applyScheduleChoice()
-		}
+		m.scheduleChoice = (m.scheduleChoice + 1) % 3
+		m.applyScheduleChoice()
 
 	case "enter":
-		if m.settingsFocus == 1 {
-			m.config.DownloadDir = m.dirInput.Value()
-			m.config.Save()
-		}
+		// No action on schedule mode
 
 	default:
-		if m.settingsFocus == 1 {
-			m.dirInput, cmd = m.dirInput.Update(msg)
-		}
+		// ignore other keys when on schedule mode
 	}
 
 	return m, cmd
@@ -369,7 +390,8 @@ func (m Model) renderSettings() string {
 	b.WriteString(dirLabel + "\n")
 
 	if m.settingsFocus == 1 {
-		b.WriteString("  " + inputStyle.Render(m.dirInput.View()) + "\n")
+		inputView := inputStyle.Render(" " + m.dirInput.View() + " ")
+		b.WriteString(lipgloss.NewStyle().MarginLeft(2).Render(inputView) + "\n")
 	} else {
 		b.WriteString("  " + dimStyle.Render(m.config.DownloadDir) + "\n")
 	}

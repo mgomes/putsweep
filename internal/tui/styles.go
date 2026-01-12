@@ -28,8 +28,7 @@ var (
 
 	inputStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
-			Padding(0, 1)
+			BorderForeground(lipgloss.Color("63"))
 
 	helpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("241"))
