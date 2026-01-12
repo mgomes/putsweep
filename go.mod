@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/google/uuid v1.6.0
-	github.com/mgomes/dl v0.0.0
+	github.com/mgomes/dl v1.7.0
 	github.com/putdotio/go-putio v1.7.0
 	golang.org/x/oauth2 v0.25.0
 )
@@ -31,5 +31,3 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
 )
-
-replace github.com/mgomes/dl => ../dl
