@@ -60,14 +60,18 @@ func ParsePutioURL(urlStr string) (int64, error) {
 	}
 
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-	if len(parts) < 2 || parts[0] != "files" {
-		return 0, fmt.Errorf("invalid put.io file URL format")
+
+	// Find "files" in the path and get the ID after it
+	// Handles: /files/123, /v2/files/123/download, etc.
+	for i, part := range parts {
+		if part == "files" && i+1 < len(parts) {
+			fileID, err := strconv.ParseInt(parts[i+1], 10, 64)
+			if err != nil {
+				return 0, fmt.Errorf("invalid file ID: %w", err)
+			}
+			return fileID, nil
+		}
 	}
 
-	fileID, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("invalid file ID: %w", err)
-	}
-
-	return fileID, nil
+	return 0, fmt.Errorf("invalid put.io file URL format")
 }
