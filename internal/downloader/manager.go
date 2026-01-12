@@ -275,6 +275,12 @@ func (m *Manager) download(item *QueueItem) {
 		return
 	}
 
+	// Delete from put.io after successful download
+	if err := m.putioClient.DeleteFile(m.ctx, item.FileID); err != nil {
+		// Log but don't fail - file is downloaded successfully
+		m.eventCh <- Event{Type: EventDownloadFailed, ItemID: item.ID, Message: "downloaded but failed to delete from put.io: " + err.Error()}
+	}
+
 	m.mu.Lock()
 	item.Status = StatusCompleted
 	item.Downloaded = item.Size

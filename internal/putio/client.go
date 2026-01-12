@@ -49,6 +49,14 @@ func (c *Client) GetDownloadURL(ctx context.Context, fileID int64) (string, erro
 	return downloadURL, nil
 }
 
+func (c *Client) DeleteFile(ctx context.Context, fileID int64) error {
+	err := c.client.Files.Delete(ctx, fileID)
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %w", err)
+	}
+	return nil
+}
+
 func ParsePutioURL(urlStr string) (int64, error) {
 	u, err := url.Parse(urlStr)
 	if err != nil {
