@@ -108,7 +108,7 @@ func newAuthRunner() authRunner {
 }
 
 func (m authRunner) Init() tea.Cmd {
-	return m.authModel.Init()
+	return tea.Batch(m.authModel.Init(), tea.EnableBracketedPaste)
 }
 
 func (m authRunner) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

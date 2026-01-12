@@ -72,6 +72,7 @@ func New(cfg *config.Config, manager *downloader.Manager) Model {
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		textinput.Blink,
+		tea.EnableBracketedPaste,
 		listenForProgress(m.manager.ProgressChannel()),
 		listenForEvents(m.manager.EventChannel()),
 		tick(),
@@ -440,6 +441,7 @@ func (m AuthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
+		m.tokenInput, cmd = m.tokenInput.Update(msg)
 
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
